@@ -15,7 +15,7 @@ fs.readFile(inputFileName, 'utf8', function (err, data) {
 });
 
 function save(){
-    let dataToSave = JSON.stringify(data);
+    let dataToSave = JSON.stringify(output);
     fs.writeFileSync(outputFileName, dataToSave);
 }
 
@@ -34,8 +34,17 @@ function process(input){
     data.forEach((page)=>{
         page.row.forEach((row)=>{
             try{
-                console.log(reverseString(row.column[0].text['#text']));
-                // output.parts.push(row['column'][0].text);
+                const firstColumn = row['column'][0]["text"];
+                let rowParams={ //change to const when done
+                    fontName: (firstColumn !== "" && firstColumn["@fontName"]?firstColumn["@fontName"]:null),
+                    fontSize: (firstColumn !== "" && firstColumn["@fontSize"]?firstColumn["@fontSize"]:null),
+                    fontStyle: (firstColumn !== "" && firstColumn["@fontStyle"]?firstColumn["@fontStyle"]:null)
+                };
+                rowParams="";
+                // const rowType = getContentType(rowParams);
+                // console.log(reverseString(row.column[0].text['#text']));
+                // output.parts.push(row['column'][0]);
+                output.parts.push(rowParams);
             }catch(error) {
                 // console.error(error);
             }
