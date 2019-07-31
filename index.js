@@ -19,6 +19,13 @@ function save(){
     fs.writeFileSync(outputFileName, dataToSave);
 }
 
+function reverseString(str) {
+    const splitString = str.split("");
+    const reverseArray = splitString.reverse();
+    const joinArray = reverseArray.join("");
+    return joinArray;
+}
+
 function process(input){
     data = input.document.page;
     data = data.filter((page)=>{
@@ -26,7 +33,12 @@ function process(input){
     });
     data.forEach((page)=>{
         page.row.forEach((row)=>{
-
+            try{
+                console.log(reverseString(row.column[0].text['#text']));
+                // output.parts.push(row['column'][0].text);
+            }catch(error) {
+                // console.error(error);
+            }
         });
     });
     save();
