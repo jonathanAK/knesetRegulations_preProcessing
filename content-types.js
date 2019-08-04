@@ -11,16 +11,19 @@ const PART_TYPE={
 const SECTION_TYPE={
     fontName: "Times",
     fontSize: "11.0",
+    fontStyle:null
 };
 
 const SIDE_NOTE_TYPE = {
     fontName: "Times New Roman",
-    fontSize: "12.0"
+    fontSize: "12.0",
+    fontStyle:null
 }
 
 const PAGE_NUM_MARKER_TYPE = {
     fontName: "Times New Roman",
-    fontSize: "10.0"
+    fontSize: "10.0",
+    fontStyle:null
 }
 
 const EMPTY_SPACES= {

@@ -1,10 +1,12 @@
 const fs = require('fs');
 const strings = require('./strings.js');
+const contentTypes = require('./content-types.js');
+const rowClassifier = require('./classifyRows.js');
 
 const inputFileName = 'RulesOfProcedure.json';
 const outputFileName = 'output.json';
 const firstContentPage = 31;
-const lastContentPage = 40;
+const lastContentPage = 500;
 
 let input = null;
 let data;
@@ -32,43 +34,53 @@ function process(input){
         return (page['@index'] >= firstContentPage && page['@index']<= lastContentPage);
     });
     data.forEach((page)=>{
-        page.row.forEach((row)=>{
-            try{
-                const firstColumn = row['column'][0]["text"];
-                const rowParams={ //change to const when done
-                    fontName: (firstColumn !== "" && firstColumn["@fontName"]?firstColumn["@fontName"]:null),
-                    fontSize: (firstColumn !== "" && firstColumn["@fontSize"]?firstColumn["@fontSize"]:null),
-                    fontStyle: (firstColumn !== "" && firstColumn["@fontStyle"]?firstColumn["@fontStyle"]:null)
-                };
+        if(Array.isArray(page.row)) {
+            page.row.forEach((row) => {
+                try {
+                    const firstColumn = row['column'][0]["text"];
+                    const rowType = rowClassifier.classify(row);
 
-                // const rowType = getContentType(rowParams);
+                    let text, val;
+                    switch (rowType) {
 
-                const rowType =(firstColumn !== "" && firstColumn["@fontSize"] && firstColumn["@fontSize"] ==="15.0" ? "part" : "first"); //for work in progress
-                switch(rowType){
-                    case("first"):
-                        break;
-                    case("part"):
-                        const text = strings.reverseString(firstColumn["#text"]);
-                        const part = strings.splitOnColon(text);
+                        case(rowClassifier.PART):
+                            text = strings.reverseString(firstColumn["#text"]);
+                            val = strings.splitOnColon(text);
 
-                        head.part++;
-                        head.chapter=0;
-                        head.section=0;
-                        head.subSection=0;
+                            head.part++;
+                            head.chapter = 0;
+                            head.section = 0;
+                            head.subSection = 0;
 
-                        part.id=head.part;
-                        output.parts[head.part]={...part};
-                        break;
-                };
+                            val.id = head.part;
+                            output.parts[head.part] = {...val};
+                            break;
 
-                // console.log(reverseString(row.column[0].text['#text']));
-                // output.parts.push(row['column'][0]);
-                // output.parts.push(rowParams);
+                        case(rowClassifier.CHAPTER):
+                            text = strings.reverseString(firstColumn["#text"]);
+                            val = strings.splitOnColon(text);
 
-            }catch(error) {
-                // console.error(error);
-            }
-        });
+                            val.id = head.chapter;
+                            if (head.chapter === 0) {
+                                output.parts[head.part].chapters = [{...val}];
+                            } else {
+                                output.parts[head.part].chapters.push({...val});
+                            }
+                            head.chapter++;
+                            head.section = 0;
+                            head.subSection = 0;
+                            break;
+                    }
+
+                    // console.log(reverseString(row.column[0].text['#text']));
+                    // output.parts.push(row['column'][0]);
+                    // output.parts.push(rowParams);
+
+                } catch (error) {
+                    // console.error(error);
+                }
+            });
+        };
     });
     save();
 }
