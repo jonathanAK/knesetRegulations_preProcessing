@@ -37,7 +37,12 @@ function process(input){
         if(Array.isArray(page.row)) {
             page.row.forEach((row) => {
                 try {
-                    const firstColumn = row['column'][0]["text"];
+                    let i=0;
+                    let firstColumn;
+                    do{
+                        firstColumn = row['column'][i]["text"];
+                        i++;
+                    }while(firstColumn === "");
                     const rowType = rowClassifier.classify(row);
 
                     let text, val;
